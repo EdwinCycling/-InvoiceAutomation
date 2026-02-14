@@ -1,0 +1,5 @@
+{
+  "name": "Exact AI-First Invoice Automator",
+  "description": "An AI-powered invoice processing prototype for Exact Online, featuring smart splitting, intelligent routing, and self-healing validation.",
+  "requestFramePermissions": []
+}
