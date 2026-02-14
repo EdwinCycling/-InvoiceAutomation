@@ -5,7 +5,7 @@ import {
 } from 'lucide-react';
 import { Document, LineItem } from '../types';
 import { GL_ACCOUNTS, VAT_CODES, SUPPLIERS } from '../mockData';
-import { detectCostSpreading, validateAndHeal, shortenDescription } from '../services/aiEngine';
+import { detectCostSpreading, validateAndHeal } from '../services/aiEngine';
 
 interface DetailCockpitProps {
   document: Document;
@@ -37,7 +37,8 @@ export const DetailCockpit: React.FC<DetailCockpitProps> = ({ document: initialD
   const runValidation = () => {
     setIsValidating(true);
     setTimeout(() => {
-      const { healedLines, log, isValid, adjustedTotal } = validateAndHeal(doc);
+      // adjustedTotal is returned but unused in this context as we keep the header total fixed
+      const { healedLines, log, isValid } = validateAndHeal(doc);
       
       setDoc(prev => ({
         ...prev,
