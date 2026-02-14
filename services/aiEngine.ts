@@ -1,33 +1,28 @@
 import { Document, LineItem, AuditEntry } from '../types';
-import { SUPPLIERS, HISTORICAL_MATCHES, VAT_CODES } from '../mockData';
+import { SUPPLIERS } from '../mockData';
 
 // 1. Intelligent Routing (Step 2a & 2b)
-export const classifyAndRoute = (fileName: string, rawText: string): Partial<Document> => {
+export const classifyAndRoute = (_fileName: string, rawText: string): Partial<Document> => {
   const lowerText = rawText.toLowerCase();
   const isReceipt = lowerText.includes('bon') || lowerText.includes('receipt') || lowerText.includes('kassa');
   
   let type: 'INVOICE' | 'RECEIPT' = isReceipt ? 'RECEIPT' : 'INVOICE';
   let matchedSupplier = SUPPLIERS.find(s => s.id === 'SUP999'); // Default: xxxxx Nog aan te maken
   let confidence = 0.65;
-  let originalSupplierName = "Onbekend";
 
   if (isReceipt) {
     // Receipt Logic: Route to Collection Accounts
     if (lowerText.includes('shell') || lowerText.includes('esso') || lowerText.includes('tank')) {
       matchedSupplier = SUPPLIERS.find(s => s.category === 'FUEL');
-      originalSupplierName = "Shell";
       confidence = 0.95;
     } else if (lowerText.includes('cafe') || lowerText.includes('restaurant') || lowerText.includes('lunch')) {
       matchedSupplier = SUPPLIERS.find(s => s.category === 'HORECA');
-      originalSupplierName = "Restaurant";
       confidence = 0.92;
     } else if (lowerText.includes('ah') || lowerText.includes('jumbo') || lowerText.includes('albert heijn')) {
       matchedSupplier = SUPPLIERS.find(s => s.category === 'SUPERMARKET');
-      originalSupplierName = "Albert Heijn";
       confidence = 0.98;
     } else {
       matchedSupplier = SUPPLIERS.find(s => s.category === 'OTHER');
-      originalSupplierName = "Diverse";
       confidence = 0.85;
     }
   } else {
@@ -35,10 +30,7 @@ export const classifyAndRoute = (fileName: string, rawText: string): Partial<Doc
     const foundSupplier = SUPPLIERS.find(s => lowerText.includes(s.name.toLowerCase()));
     if (foundSupplier && foundSupplier.id !== 'SUP999') {
       matchedSupplier = foundSupplier;
-      originalSupplierName = matchedSupplier.name;
       confidence = 0.99;
-    } else {
-        originalSupplierName = "Nieuwe Leverancier";
     }
   }
 

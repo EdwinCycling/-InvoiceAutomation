@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  ArrowLeft, Calendar, Save, Calculator, AlertTriangle, 
+  ArrowLeft, Calendar, Save, Calculator, 
   Check, History, MoreHorizontal, Wand2, Split 
 } from 'lucide-react';
 import { Document, LineItem } from '../types';

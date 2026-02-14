@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Upload, FileText, CheckCircle, Loader2, AlertCircle, ArrowRight } from 'lucide-react';
+import React, { useState } from 'react';
+import { Upload, FileText, CheckCircle, ArrowRight } from 'lucide-react';
 import { Document } from '../types';
 import { classifyAndRoute, shortenDescription, generateHeaderSubject } from '../services/aiEngine';
 
