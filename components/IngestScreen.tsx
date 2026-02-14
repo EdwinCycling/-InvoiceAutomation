@@ -1,11 +1,33 @@
 import React, { useState } from 'react';
-import { Upload, FileText, CheckCircle, ArrowRight } from 'lucide-react';
+import { Upload, FileText, CheckCircle, ArrowRight, Building2, MoreVertical, Plus, Bell } from 'lucide-react';
 import { Document } from '../types';
 import { classifyAndRoute, shortenDescription, generateHeaderSubject } from '../services/aiEngine';
 
 interface IngestScreenProps {
   onProcessComplete: (docs: Document[]) => void;
 }
+
+interface WidgetProps {
+  title: string;
+  children: React.ReactNode;
+  actions?: React.ReactNode;
+}
+
+// Reusable Exact Widget Component
+const Widget = ({ title, children, actions }: WidgetProps) => (
+  <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-exact rounded-sm flex flex-col h-full min-h-[160px]">
+    <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-white dark:bg-slate-800 rounded-t-sm">
+      <h3 className="font-semibold text-slate-800 dark:text-slate-200 text-sm">{title}</h3>
+      <div className="flex items-center gap-2">
+         {actions}
+         <button className="text-slate-400 hover:text-exact-blue"><MoreVertical className="w-4 h-4" /></button>
+      </div>
+    </div>
+    <div className="p-4 flex-1 flex flex-col">
+      {children}
+    </div>
+  </div>
+);
 
 export const IngestScreen: React.FC<IngestScreenProps> = ({ onProcessComplete }) => {
   const [isDragging, setIsDragging] = useState(false);
@@ -17,13 +39,13 @@ export const IngestScreen: React.FC<IngestScreenProps> = ({ onProcessComplete })
     setIsProcessing(true);
     setProgress(0);
 
-    // Mock Simulation Steps (Steps 1 & 2)
+    // Mock Simulation Steps
     const steps = [
-      { p: 20, label: 'Splitting bulk PDF...' },
-      { p: 40, label: 'OCR Extraction...' },
-      { p: 60, label: 'Identifying Suppliers...' },
-      { p: 80, label: 'Retrieving Booking History...' },
-      { p: 100, label: 'Complete' },
+      { p: 20, label: 'Bulk PDF splitsen...' },
+      { p: 40, label: 'OCR Extractie...' },
+      { p: 60, label: 'Verzamelcrediteuren identificeren...' },
+      { p: 80, label: 'Booking Historie ophalen...' },
+      { p: 100, label: 'Voltooid' },
     ];
 
     let currentStep = 0;
@@ -53,8 +75,6 @@ export const IngestScreen: React.FC<IngestScreenProps> = ({ onProcessComplete })
         invoiceDate: '2023-10-24',
         refNumber: '',
         totalAmount: 45.00,
-        // Step 4a: Generate Subject (Receipt gets supplier name)
-        // Step 5: Lines with GL
         lines: [{
           id: 'L1', 
           description: generateHeaderSubject('RECEIPT', doc1Info.supplierName || '', 'Brandstof V-Power'), 
@@ -101,98 +121,158 @@ export const IngestScreen: React.FC<IngestScreenProps> = ({ onProcessComplete })
     simulateProcessing();
   };
 
-  if (processedDocs.length > 0) {
-    return (
-      <div className="flex flex-col h-full p-8 animate-in fade-in duration-500 bg-slate-50 dark:bg-slate-900">
-        <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-6">Processing Complete</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {processedDocs.map((doc) => (
-            <div 
-              key={doc.id} 
-              onClick={() => onProcessComplete([doc])} 
-              className="group bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-5 cursor-pointer hover:shadow-md hover:border-exact-blue dark:hover:border-exact-blue transition-all"
-            >
-              <div className="flex justify-between items-start mb-4">
-                <div className={`p-3 rounded-lg ${doc.type === 'RECEIPT' ? 'bg-orange-50 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400' : 'bg-blue-50 text-exact-blue dark:bg-blue-900/30 dark:text-blue-400'}`}>
-                  <FileText className="w-6 h-6" />
-                </div>
-                <div className="flex flex-col items-end">
-                  <span className={`text-xs font-bold px-2 py-1 rounded-full ${
-                    doc.confidence > 0.9 ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
-                  }`}>
-                    {Math.round(doc.confidence * 100)}% Match
-                  </span>
-                  <span className="text-xs text-slate-400 mt-1">{doc.fileName}</span>
-                </div>
-              </div>
-              
-              <h3 className="font-bold text-slate-800 dark:text-slate-200 truncate">{doc.supplierName}</h3>
-              <div className="flex justify-between items-center mt-4">
-                <span className="text-lg font-mono font-medium text-slate-700 dark:text-slate-300">€ {doc.totalAmount.toFixed(2)}</span>
-                <span className="flex items-center text-exact-blue text-sm font-medium group-hover:translate-x-1 transition-transform">
-                  Review <ArrowRight className="w-4 h-4 ml-1" />
-                </span>
-              </div>
-              
-              {doc.type === 'RECEIPT' && (
-                <div className="mt-3 text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-700 p-2 rounded">
-                  <span className="font-semibold">AI Routing:</span> Detected as {doc.supplierName}
-                </div>
-              )}
-            </div>
-          ))}
+  return (
+    <div className="h-full overflow-y-auto bg-exact-bg dark:bg-slate-900 p-2 md:p-6 animate-in fade-in duration-500">
+      
+      {/* Cockpit Header */}
+      <div className="flex items-start gap-3 mb-6 px-2 md:px-0">
+        <div className="p-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded">
+           <Building2 className="w-6 h-6 text-slate-500" />
+        </div>
+        <div>
+           <h1 className="text-xl md:text-2xl font-normal text-slate-800 dark:text-white">9666 - Cycling World</h1>
+           <p className="text-slate-500 dark:text-slate-400 text-sm">Financiële cockpit</p>
         </div>
       </div>
-    );
-  }
 
-  return (
-    <div className="flex flex-col items-center justify-center h-full p-12 bg-slate-50 dark:bg-slate-900">
-      {!isProcessing ? (
-        <div 
-          onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
-          onDragLeave={() => setIsDragging(false)}
-          onDrop={handleDrop}
-          onClick={simulateProcessing}
-          className={`w-full max-w-2xl h-96 border-4 border-dashed rounded-2xl flex flex-col items-center justify-center cursor-pointer transition-all duration-300 ${
-            isDragging 
-              ? 'border-exact-blue bg-exact-light dark:bg-slate-800' 
-              : 'border-slate-300 dark:border-slate-700 hover:border-exact-blue hover:bg-slate-50 dark:hover:bg-slate-800'
-          }`}
+      {/* Cockpit Grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4 mb-2 md:mb-4">
+         {/* Top Summary Widgets */}
+         {['Bank / Kas', 'Verkoop', 'Inkoop', 'Resultaat'].map((title, i) => (
+           <Widget key={title} title={title}>
+              <div className="flex-1 flex flex-col justify-between">
+                <span className="text-slate-400 text-xs md:text-sm">Huidig saldo</span>
+                <span className="text-right text-xl md:text-2xl font-light text-slate-300">0</span>
+              </div>
+           </Widget>
+         ))}
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4 pb-8">
+        {/* Main "Smart Ingest" Widget - Replaces Bank/Kas interaction from screenshot */}
+        <Widget 
+          title="Smart Ingest & AI" 
+          actions={
+            <button className="text-exact-blue border border-exact-blue rounded px-2 py-0.5 text-xs font-medium hover:bg-blue-50">
+               + Upload
+            </button>
+          }
         >
-          <div className="bg-white dark:bg-slate-800 p-6 rounded-full shadow-sm mb-6">
-            <Upload className={`w-12 h-12 ${isDragging ? 'text-exact-blue' : 'text-slate-400 dark:text-slate-500'}`} />
-          </div>
-          <h3 className="text-xl font-semibold text-slate-700 dark:text-slate-200 mb-2">Drag & Drop Batch Upload</h3>
-          <p className="text-slate-500 dark:text-slate-400 text-center max-w-md">
-            Upload PDF, JPG or PNG. Our AI will automatically split bulk files and classify receipts.
-          </p>
-        </div>
-      ) : (
-        <div className="w-full max-w-lg text-center">
-          <div className="relative w-24 h-24 mx-auto mb-8">
-            <div className="absolute inset-0 border-4 border-slate-100 dark:border-slate-800 rounded-full"></div>
-            <div className="absolute inset-0 border-4 border-exact-blue rounded-full border-t-transparent animate-spin"></div>
-            <div className="absolute inset-0 flex items-center justify-center">
-               <span className="text-lg font-bold text-exact-blue">{progress}%</span>
+          {processedDocs.length > 0 ? (
+            <div className="space-y-4">
+               <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 p-3 rounded text-sm text-green-800 dark:text-green-300 flex items-start gap-2">
+                 <CheckCircle className="w-4 h-4 mt-0.5 shrink-0" />
+                 <div>
+                   <span className="font-bold">Verwerking voltooid!</span>
+                   <p className="text-xs mt-1">2 documenten klaar voor controle.</p>
+                 </div>
+               </div>
+
+               <div className="space-y-2">
+                 {processedDocs.map((doc) => (
+                   <div 
+                     key={doc.id} 
+                     onClick={() => onProcessComplete([doc])} 
+                     className="group flex items-center justify-between p-3 border border-slate-200 dark:border-slate-700 rounded hover:border-exact-blue hover:shadow-sm cursor-pointer transition-all bg-white dark:bg-slate-800"
+                   >
+                     <div className="flex items-center gap-3">
+                        <div className={`p-2 rounded ${doc.type === 'RECEIPT' ? 'bg-orange-50 text-orange-600' : 'bg-blue-50 text-exact-blue'}`}>
+                           <FileText className="w-4 h-4" />
+                        </div>
+                        <div>
+                           <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">{doc.supplierName}</p>
+                           <p className="text-xs text-slate-400">Match: {Math.round(doc.confidence * 100)}%</p>
+                        </div>
+                     </div>
+                     <div className="flex items-center gap-3">
+                        <span className="font-mono text-sm">€ {doc.totalAmount.toFixed(2)}</span>
+                        <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-exact-blue" />
+                     </div>
+                   </div>
+                 ))}
+               </div>
             </div>
-          </div>
-          <h3 className="text-xl font-semibold text-slate-800 dark:text-white mb-2">AI Processing Active</h3>
-          <p className="text-slate-500 dark:text-slate-400 mb-8 animate-pulse">Analyzing structure, splitting pages, and matching suppliers...</p>
-          
-          <div className="bg-white dark:bg-slate-800 rounded-lg p-4 shadow-sm border border-slate-100 dark:border-slate-700 text-left space-y-3 max-w-sm mx-auto">
-            <div className={`flex items-center text-sm ${progress > 20 ? 'text-green-600 dark:text-green-400' : 'text-slate-400 dark:text-slate-600'}`}>
-              <CheckCircle className="w-4 h-4 mr-2" /> Splitting Documents
+          ) : !isProcessing ? (
+             <div className="flex-1 flex flex-col">
+               <div 
+                 onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                 onDragLeave={() => setIsDragging(false)}
+                 onDrop={handleDrop}
+                 onClick={simulateProcessing}
+                 className={`flex-1 border-2 border-dashed rounded flex flex-col items-center justify-center cursor-pointer transition-all p-6 min-h-[160px] ${
+                   isDragging 
+                     ? 'border-exact-blue bg-blue-50 dark:bg-slate-700' 
+                     : 'border-slate-300 dark:border-slate-600 hover:border-exact-blue hover:bg-slate-50 dark:hover:bg-slate-800'
+                 }`}
+               >
+                 <Upload className={`w-8 h-8 md:w-10 md:h-10 mb-3 ${isDragging ? 'text-exact-blue' : 'text-slate-400'}`} />
+                 <button className="bg-exact-blue text-white text-sm font-medium px-4 py-2 rounded mb-2 hover:bg-exact-dark">
+                    Selecteer bestanden
+                 </button>
+                 <p className="text-xs text-slate-500 text-center">
+                    of sleep bestanden hierheen
+                 </p>
+               </div>
+             </div>
+          ) : (
+            <div className="flex-1 flex flex-col items-center justify-center py-8">
+               <div className="w-12 h-12 md:w-16 md:h-16 border-4 border-slate-100 border-t-exact-blue rounded-full animate-spin mb-4"></div>
+               <h4 className="font-semibold text-slate-700 dark:text-white">Analyseren...</h4>
+               <p className="text-sm text-slate-500 mb-6">{progress}% voltooid</p>
+               <div className="w-full max-w-xs space-y-2">
+                  <div className={`text-xs flex items-center ${progress > 20 ? 'text-green-600' : 'text-slate-400'}`}>
+                    <CheckCircle className="w-3 h-3 mr-2" /> Splitsen & OCR
+                  </div>
+                  <div className={`text-xs flex items-center ${progress > 60 ? 'text-green-600' : 'text-slate-400'}`}>
+                    <CheckCircle className="w-3 h-3 mr-2" /> Leverancier herkenning
+                  </div>
+                  <div className={`text-xs flex items-center ${progress > 80 ? 'text-green-600' : 'text-slate-400'}`}>
+                    <CheckCircle className="w-3 h-3 mr-2" /> Validatie checks
+                  </div>
+               </div>
             </div>
-            <div className={`flex items-center text-sm ${progress > 60 ? 'text-green-600 dark:text-green-400' : 'text-slate-400 dark:text-slate-600'}`}>
-              <CheckCircle className="w-4 h-4 mr-2" /> Identifying "Verzamelcrediteuren"
-            </div>
-            <div className={`flex items-center text-sm ${progress > 80 ? 'text-green-600 dark:text-green-400' : 'text-slate-400 dark:text-slate-600'}`}>
-              <CheckCircle className="w-4 h-4 mr-2" /> Self-Healing Validation
-            </div>
-          </div>
-        </div>
-      )}
+          )}
+        </Widget>
+
+        {/* Placeholder Widget mimicking Screenshot "Verkoop" */}
+        <Widget title="Verkoop" actions={<button className="border border-slate-300 rounded p-1"><MoreVertical className="w-3 h-3 text-slate-400"/></button>}>
+           <div className="flex flex-col gap-4">
+              <button className="w-full border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 py-2 rounded text-sm font-medium hover:bg-slate-50">
+                Nieuwe verkoopfactuur
+              </button>
+              <div className="border-t border-slate-100 dark:border-slate-700 pt-3">
+                 <h4 className="text-sm font-semibold text-slate-700 dark:text-white mb-1">Openstaande posten</h4>
+                 <p className="text-xs text-slate-500">Te vorderen</p>
+                 <p className="text-xl font-light text-slate-800 dark:text-slate-200 mt-1">€ 12.450,00</p>
+              </div>
+           </div>
+        </Widget>
+
+        {/* Placeholder Widget "Inkoop" */}
+         <Widget title="Inkoop" actions={<button className="border border-slate-300 rounded p-1"><MoreVertical className="w-3 h-3 text-slate-400"/></button>}>
+           <div className="flex flex-col gap-4">
+              <button className="w-full border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 py-2 rounded text-sm font-medium hover:bg-slate-50">
+                Nieuwe inkoopboeking
+              </button>
+              <div className="border-t border-slate-100 dark:border-slate-700 pt-3">
+                 <h4 className="text-sm font-semibold text-slate-700 dark:text-white mb-1">Openstaande posten</h4>
+                 <p className="text-xs text-slate-500">Te betalen</p>
+                 <p className="text-xl font-light text-slate-800 dark:text-slate-200 mt-1">€ 0,00</p>
+              </div>
+           </div>
+        </Widget>
+
+        {/* To Do Widget */}
+        <Widget title="To do">
+           <div className="flex-1">
+             <h4 className="text-sm font-medium text-slate-700 dark:text-white">1 Taken</h4>
+             <div className="mt-3 p-3 bg-yellow-50 border border-yellow-100 rounded text-xs text-yellow-800">
+               Controleer 2 nieuwe documenten in Smart Ingest.
+             </div>
+           </div>
+        </Widget>
+      </div>
+
     </div>
   );
 };

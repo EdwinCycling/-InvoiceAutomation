@@ -3,7 +3,10 @@ import { Screen, Document } from './types';
 import { IngestScreen } from './components/IngestScreen';
 import { DetailCockpit } from './components/DetailCockpit';
 import { HistoryScreen } from './components/HistoryScreen';
-import { Layout, History, Settings, Sun, Moon, Lock, AlertCircle } from 'lucide-react';
+import { 
+  Search, HelpCircle, Plus, LayoutGrid, FileText, Bell, User, 
+  Menu, Building2, ChevronDown, Lock, AlertCircle, X
+} from 'lucide-react';
 
 // --- Theme Context ---
 type Theme = 'light' | 'dark';
@@ -13,7 +16,7 @@ const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   const [theme, setTheme] = useState<Theme>('light');
 
   useEffect(() => {
-    // Check system preference or default
+    // Default to light to match screenshot, respect system if needed
     if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
       setTheme('dark');
     }
@@ -36,13 +39,13 @@ const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   );
 };
 
+// --- Login Screen ---
 const LoginScreen = ({ onLogin }: { onLogin: () => void }) => {
   const [accessCode, setAccessCode] = useState('');
   const [error, setError] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Updated access code check
     if (accessCode.toLowerCase() === 'exact2025') {
       onLogin();
     } else {
@@ -52,99 +55,161 @@ const LoginScreen = ({ onLogin }: { onLogin: () => void }) => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col items-center justify-center p-4 transition-colors">
-      <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-xl w-full max-w-md text-center border border-slate-100 dark:border-slate-700 animate-in fade-in zoom-in duration-300">
-        <div className="w-16 h-16 bg-exact-blue rounded-xl mx-auto mb-6 flex items-center justify-center shadow-lg shadow-blue-200 dark:shadow-blue-900/50">
-           <span className="text-white font-bold text-2xl">Ex</span>
+    <div className="min-h-screen bg-exact-bg dark:bg-slate-900 flex flex-col items-center justify-center p-4">
+      <div className="w-full max-w-sm">
+        <div className="flex justify-center mb-8">
+             <span className="font-bold text-3xl tracking-tighter text-slate-800 dark:text-white">
+               <span className="text-exact-red text-4xl mr-0.5">=</span>exact
+             </span>
         </div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">AI First Invoice automation</h1>
-        <p className="text-slate-500 dark:text-slate-400 mb-6">Prototype Access</p>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="relative">
-            <Lock className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
-            <input 
-              type="password"
-              value={accessCode}
-              onChange={(e) => { setAccessCode(e.target.value); setError(false); }}
-              placeholder="Enter Access Code"
-              className={`w-full pl-10 pr-4 py-3 rounded-lg border ${error ? 'border-red-500 ring-1 ring-red-500' : 'border-slate-300 dark:border-slate-600'} bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-exact-blue outline-none transition-all`}
-            />
-          </div>
+        <div className="bg-white dark:bg-slate-800 p-8 rounded shadow-exact border border-slate-200 dark:border-slate-700">
+          <h1 className="text-xl font-semibold text-slate-900 dark:text-white mb-6">Inloggen</h1>
           
-          {error && (
-            <div className="flex items-center gap-2 text-red-500 text-sm justify-center animate-pulse">
-              <AlertCircle className="w-4 h-4" />
-              <span>Invalid Access Code</span>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Gebruikersnaam</label>
+              <input 
+                type="text"
+                disabled
+                value="John Doe"
+                className="w-full px-3 py-2 rounded border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-slate-500"
+              />
             </div>
-          )}
 
-          <button 
-            type="submit"
-            className="w-full bg-exact-blue hover:bg-exact-dark text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 shadow-sm flex items-center justify-center gap-2"
-          >
-            Sign In
-          </button>
-        </form>
-        
-        <p className="mt-6 text-xs text-slate-400 dark:text-slate-500">
-          Restricted Access • Professional Use Only
-        </p>
+            <div className="relative">
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Toegangscode</label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
+                <input 
+                  type="password"
+                  value={accessCode}
+                  onChange={(e) => { setAccessCode(e.target.value); setError(false); }}
+                  placeholder="exact2025"
+                  className={`w-full pl-9 pr-3 py-2 rounded border ${error ? 'border-red-500' : 'border-slate-300 dark:border-slate-600'} bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-1 focus:ring-exact-blue focus:border-exact-blue outline-none transition-all`}
+                />
+              </div>
+            </div>
+            
+            {error && (
+              <div className="flex items-center gap-2 text-exact-red text-xs animate-pulse">
+                <AlertCircle className="w-3 h-3" />
+                <span>Onjuiste code</span>
+              </div>
+            )}
+
+            <button 
+              type="submit"
+              className="w-full bg-exact-blue hover:bg-exact-dark text-white font-medium py-2 px-4 rounded transition-colors duration-200 flex items-center justify-center"
+            >
+              Inloggen
+            </button>
+          </form>
+        </div>
+        <p className="text-center text-xs text-slate-400 mt-6">© 2025 Exact Group B.V.</p>
       </div>
     </div>
   );
 };
 
-const Sidebar = ({ activeScreen, onNavigate }: { activeScreen: Screen; onNavigate: (s: Screen) => void }) => {
-  const { theme, toggleTheme } = useContext(ThemeContext);
-  
-  return (
-    <aside className="w-64 bg-slate-850 dark:bg-slate-950 text-white flex flex-col shrink-0 transition-all duration-300 border-r border-slate-700 dark:border-slate-800">
-      <div className="h-16 flex items-center px-6 border-b border-slate-700 dark:border-slate-800">
-        <span className="font-bold text-lg tracking-tight">Exact<span className="text-blue-400 font-light">AI</span></span>
-      </div>
-      
-      <nav className="flex-1 py-6 px-3 space-y-1">
-        <div 
-          onClick={() => onNavigate('INGEST')}
-          className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium cursor-pointer transition-colors ${
-          activeScreen === 'INGEST' || activeScreen === 'DETAIL' ? 'bg-exact-blue text-white' : 'text-slate-400 hover:text-white hover:bg-slate-800'
-        }`}>
-          <Layout className="w-5 h-5" />
-          Dashboard & Ingest
-        </div>
-        <div 
-          onClick={() => onNavigate('HISTORY')}
-          className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium cursor-pointer transition-colors ${
-          activeScreen === 'HISTORY' ? 'bg-exact-blue text-white' : 'text-slate-400 hover:text-white hover:bg-slate-800'
-        }`}>
-          <History className="w-5 h-5" />
-          History
-        </div>
-        <div className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800 cursor-pointer">
-          <Settings className="w-5 h-5" />
-          Configuration
-        </div>
-      </nav>
-      
-      <div className="p-4 border-t border-slate-700 dark:border-slate-800 space-y-4">
-        <button 
-          onClick={toggleTheme}
-          className="flex items-center justify-between w-full px-3 py-2 rounded-lg bg-slate-800 dark:bg-slate-900 text-xs text-slate-300 hover:text-white transition-colors"
-        >
-          <span>{theme === 'dark' ? 'Dark Mode' : 'Light Mode'}</span>
-          {theme === 'dark' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
-        </button>
+// --- Top Navigation (Matches Screenshot) ---
+const TopNavigation = ({ onNavigate, activeScreen }: { onNavigate: (s: Screen) => void, activeScreen: Screen }) => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-        <div className="flex items-center gap-3 px-2">
-          <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-xs font-bold text-white">JD</div>
-          <div className="flex flex-col">
-             <span className="text-sm font-medium">John Doe</span>
-             <span className="text-xs text-slate-400">Accountant Admin</span>
+  return (
+    <div className="flex flex-col bg-white dark:bg-slate-800 shadow-sm z-50 relative">
+      {/* Red Top Border */}
+      <div className="h-1 bg-exact-red w-full" />
+      
+      {/* Navbar Content */}
+      <div className="h-14 md:h-12 flex items-center justify-between px-3 md:px-4 border-b border-slate-200 dark:border-slate-700">
+        
+        {/* Left Side: Logo & Menu */}
+        <div className="flex items-center gap-2 md:gap-6">
+          
+          {/* Mobile Hamburger */}
+          <button 
+            className="md:hidden text-slate-500 p-1"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+
+          {/* Logo */}
+          <div className="flex items-center cursor-pointer" onClick={() => onNavigate('INGEST')}>
+             <span className="font-bold text-xl tracking-tighter text-slate-800 dark:text-white flex items-center">
+               <span className="text-exact-red text-2xl mr-0.5 mt-[-2px]">=</span>exact
+             </span>
+          </div>
+
+          {/* Company Context Dropdown - Hidden on small mobile */}
+          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-700 rounded border border-slate-200 dark:border-slate-600 cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
+            <span className="text-xs font-bold bg-white dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-500 text-slate-600 dark:text-slate-300">9666</span>
+            <span className="text-sm font-semibold text-slate-700 dark:text-white truncate max-w-[100px] md:max-w-none">Cycling World</span>
+            <ChevronDown className="w-3 h-3 text-slate-500" />
+          </div>
+
+          {/* Menu Links - Desktop */}
+          <nav className="hidden md:flex items-center gap-6 text-sm">
+            <button 
+              onClick={() => onNavigate('INGEST')}
+              className={`font-medium transition-colors ${activeScreen === 'INGEST' || activeScreen === 'DETAIL' ? 'text-slate-900 dark:text-white font-bold' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'}`}
+            >
+              Cockpits
+            </button>
+            <button 
+              onClick={() => onNavigate('HISTORY')}
+              className={`font-medium transition-colors ${activeScreen === 'HISTORY' ? 'text-slate-900 dark:text-white font-bold' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'}`}
+            >
+              Accountancy
+            </button>
+            <button className="text-slate-500 hover:text-slate-800 dark:text-slate-400 font-medium dark:hover:text-slate-200">
+              Medewerkers
+            </button>
+          </nav>
+        </div>
+
+        {/* Right Side: Icons */}
+        <div className="flex items-center gap-2 md:gap-4 text-slate-500 dark:text-slate-400">
+          <Search className="w-5 h-5 cursor-pointer hover:text-exact-blue hidden sm:block" />
+          <Plus className="w-5 h-5 cursor-pointer hover:text-exact-blue border border-slate-300 dark:border-slate-600 rounded p-0.5 hidden sm:block" />
+          <div className="relative">
+            <Bell className="w-5 h-5 cursor-pointer hover:text-exact-blue" />
+            <span className="absolute -top-1.5 -right-1.5 bg-exact-blue text-white text-[10px] font-bold px-1 rounded-full">1</span>
+          </div>
+          <div className="w-7 h-7 bg-exact-blue text-white rounded-full flex items-center justify-center text-xs font-bold cursor-pointer ml-1">
+            EA
           </div>
         </div>
       </div>
-    </aside>
+
+      {/* Mobile Menu Dropdown */}
+      {mobileMenuOpen && (
+        <div className="md:hidden absolute top-full left-0 w-full bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 shadow-lg py-4 px-4 flex flex-col gap-4 animate-in slide-in-from-top-2">
+            <div className="flex items-center gap-2 p-2 bg-slate-50 dark:bg-slate-700 rounded border border-slate-200 dark:border-slate-600">
+              <span className="text-xs font-bold bg-white dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-500 text-slate-600 dark:text-slate-300">9666</span>
+              <span className="text-sm font-semibold text-slate-700 dark:text-white">Cycling World</span>
+            </div>
+            <nav className="flex flex-col gap-3">
+              <button 
+                onClick={() => { onNavigate('INGEST'); setMobileMenuOpen(false); }}
+                className={`text-left font-medium p-2 rounded ${activeScreen === 'INGEST' || activeScreen === 'DETAIL' ? 'bg-exact-light text-exact-blue dark:bg-slate-700 dark:text-white' : 'text-slate-600 dark:text-slate-300'}`}
+              >
+                Cockpits
+              </button>
+              <button 
+                onClick={() => { onNavigate('HISTORY'); setMobileMenuOpen(false); }}
+                className={`text-left font-medium p-2 rounded ${activeScreen === 'HISTORY' ? 'bg-exact-light text-exact-blue dark:bg-slate-700 dark:text-white' : 'text-slate-600 dark:text-slate-300'}`}
+              >
+                Accountancy
+              </button>
+              <button className="text-left font-medium p-2 text-slate-600 dark:text-slate-300">
+                Medewerkers
+              </button>
+            </nav>
+        </div>
+      )}
+    </div>
   );
 };
 
@@ -178,10 +243,10 @@ const AppContent = () => {
   }
 
   return (
-    <div className="flex h-screen w-screen bg-slate-50 dark:bg-slate-900 overflow-hidden">
-      <Sidebar activeScreen={screen} onNavigate={setScreen} />
+    <div className="flex flex-col h-screen w-screen bg-exact-bg dark:bg-slate-900 overflow-hidden">
+      <TopNavigation activeScreen={screen} onNavigate={setScreen} />
       
-      <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+      <main className="flex-1 overflow-hidden relative">
         {screen === 'INGEST' && (
           <IngestScreen onProcessComplete={handleProcessComplete} />
         )}
